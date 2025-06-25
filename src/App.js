@@ -1,0 +1,59 @@
+
+import { Navigate, Route } from 'react-router-dom';
+import './App.css';
+import { BrowserRouter, Routes} from 'react-router-dom';
+import Login from './Login.js';
+import Home from './Home.js';
+import AppLayout from './layout/AppLayout.js';
+import Dashboard from './pages/Dashboard.js';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import Error from './pages/Error.js';
+import Logout from './pages/Logout.js';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import {SET_USER} from './redux/user/actions';
+
+function App() {
+  // const [userDetails,setUserDetails] = useState(null);
+
+  const userDetails = useSelector((state) => state.userDetails);
+  const dispatch = useDispatch();
+
+
+  const isUserLoggedIn = async() => {
+    try{
+      const response = await axios.post('http://localhost:5000/auth/is-user-logged-in', {}, {
+        withCredentials: true
+      });
+      // updateUserDetails(response.data.userDetails);
+      dispatch({
+        type: 'SET_USER',
+        payload: response.data.userDetails
+      });
+
+    }catch (error) {
+      console.log('User is not logged in', error);
+    }
+  };
+  useEffect(() => {
+    isUserLoggedIn();
+  }, []);
+
+  return (
+    <Routes>
+   <Route path='/' element={userDetails? <Navigate to = '/dashboard'/> : <AppLayout><Home /></AppLayout>} />
+   {/* we're passing the updateUserDetails function to the Login component so that it can update the user details in the App component */}
+  {/* we'll get user information from the Login component and update it in the App component */}
+   <Route path='/login' element={userDetails?
+    <Navigate to = '/dashboard'/> :
+    <AppLayout><Login/></AppLayout>} />
+   <Route path='/dashboard' element={userDetails?<Dashboard />: <Navigate to = '/login' />}/>
+    <Route path='/logout' element={userDetails? <Logout /> : <Navigate to = '/login' />}/>
+   <Route path='/error' element={userDetails? <Error /> : 
+   <AppLayout><Error /></AppLayout>} />
+    </Routes>
+  );
+}
+
+export default App;
