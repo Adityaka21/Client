@@ -1,10 +1,9 @@
- import React, { useState } from 'react';
+import React, { useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { GoogleOAuthProvider , GoogleLogin } from '@react-oauth/google';
 import { serverEndpoint } from './config';
 import { useDispatch } from 'react-redux';
-
 
 function Login({ updateUserDetails}) {
   // const navigate = useNavigate();
@@ -61,26 +60,10 @@ function Login({ updateUserDetails}) {
       console.log(error);
       setErrors({message: 'Something went wrong, please try again later.'});
     }
-  // This function will handle the form submission
 
     const handleSubmit = async (event) => {
       event.preventDefault();
       if (validate()) {
-        // if(formdata.username === 'admin' && formdata.password === 'admin') {
-          // Assuming the user is authenticated successfully
-          // navigate('/dashboard'); 
-          // You can also pass user details to the parent component if needed
-
-          // updateUserDetails({
-          //   username: "Aditya",
-          //   email: "Adi@gmail.com"
-          // });
-        //   setMessage('Login successful');
-        // }else {
-        //   setMessage('Invalid username or password');
-        // }
-
-        //Integrate with Rest endpoint
         const body = {
           username: formdata.username,
           password: formdata.password
@@ -104,38 +87,56 @@ function Login({ updateUserDetails}) {
           setErrors({message: 'Something went wrong, please try again later.'});
           }
         }
-          
       }
     }
+
   return (
-    <div className='container text-center'>
-      <h1>Login Page</h1>
-      {message && (
-        message
-      )}
-      {errors.message && (errors.message)}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username</label>
-          <input type='text' name='username' value={formdata.username}
-          onChange={handleChange}/>
-          {errors.username && (<span className='error'>{errors.username}</span>)}
+    <div className='container mt-5'>
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="card p-4 shadow">
+            <h1 className="text-center mb-4">Sign in to Continue</h1>
+
+            {message && (
+              <div className="alert alert-success">{message}</div>
+            )}
+            {errors.message && (
+              <div className="alert alert-danger">{errors.message}</div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label className="form-label">Username</label>
+                <input type='text' name='username' value={formdata.username}
+                onChange={handleChange}
+                className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+                />
+                {errors.username && (<div className='invalid-feedback'>{errors.username}</div>)}
+              </div>
+
+              <div className='mb-3'>
+                <label className="form-label">Password</label>
+                <input type='password' name='password' value={formdata.password}
+                onChange={handleChange}
+                className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                />
+                {errors.password && (<div className='invalid-feedback'>{errors.password}</div>)}
+              </div>
+
+              <div className='d-grid'>
+                <button type='submit' className='btn btn-primary'>Login</button>
+              </div>
+            </form>
+
+            <h4 className="text-center mt-4">OR</h4>
+            <div className="d-flex justify-content-center mt-2">
+              <GoogleOAuthProvider clientId = {process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+                <GoogleLogin onSuccess={handleGoogleSignin} onError={handleGoogleFailure} />
+              </GoogleOAuthProvider>
+            </div>
+          </div>
         </div>
-        <div className='container text-center'>
-          <label>Password</label>
-          <input type='text'name='password' value={formdata.password}
-          onChange={handleChange}
-          />
-          {errors.password && (<span className='error'>{errors.password}</span>)}
-        </div>
-        <div className='container text-center'>
-          <button type='submit'>Login</button>
-        </div>
-      </form>
-      <h2>OR</h2>
-      <GoogleOAuthProvider clientId = {process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-        <GoogleLogin onSuccess={handleGoogleSignin} onError={handleGoogleFailure} />
-        </GoogleOAuthProvider>
+      </div>
     </div>
   );
 }

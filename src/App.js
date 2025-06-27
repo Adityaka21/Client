@@ -5,6 +5,7 @@ import { BrowserRouter, Routes} from 'react-router-dom';
 import Login from './Login.js';
 import Home from './Home.js';
 import AppLayout from './layout/AppLayout.js';
+import UserLayout from './layout/UserLayout.js';
 import Dashboard from './pages/Dashboard.js';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -13,6 +14,7 @@ import Logout from './pages/Logout.js';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import {SET_USER} from './redux/user/actions';
+import Register from './pages/Register.js';
 
 function App() {
   // const [userDetails,setUserDetails] = useState(null);
@@ -48,8 +50,10 @@ function App() {
    <Route path='/login' element={userDetails?
     <Navigate to = '/dashboard'/> :
     <AppLayout><Login/></AppLayout>} />
-   <Route path='/dashboard' element={userDetails?<Dashboard />: <Navigate to = '/login' />}/>
+   <Route path='/dashboard' element={userDetails?<UserLayout><Dashboard /></UserLayout>: <Navigate to = '/login' />}/>
     <Route path='/logout' element={userDetails? <Logout /> : <Navigate to = '/login' />}/>
+    <Route path='/register' element={userDetails? <Navigate to = '/dashboard' /> :
+    <AppLayout><Register /></AppLayout>} />
    <Route path='/error' element={userDetails? <Error /> : 
    <AppLayout><Error /></AppLayout>} />
     </Routes>
