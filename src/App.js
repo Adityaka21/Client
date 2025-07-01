@@ -15,13 +15,14 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import {SET_USER} from './redux/user/actions';
 import Register from './pages/Register.js';
+ import Spinner from "./components/Spinner";
 
 function App() {
   // const [userDetails,setUserDetails] = useState(null);
 
   const userDetails = useSelector((state) => state.userDetails);
   const dispatch = useDispatch();
-
+  const[loading,setLoading] = useState(true)
 
   const isUserLoggedIn = async() => {
     try{
@@ -36,12 +37,17 @@ function App() {
 
     }catch (error) {
       console.log('User is not logged in', error);
+    }finally {
+      setLoading(false)
     }
   };
   useEffect(() => {
     isUserLoggedIn();
-  }, []);
+  }, []); 
 
+    if(loading){
+      return <Spinner />;
+    }
   return (
     <Routes>
    <Route path='/' element={userDetails? <Navigate to = '/dashboard'/> : <AppLayout><Home /></AppLayout>} />
