@@ -7,7 +7,6 @@ function UserHeader() {
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">Dashboard</Link>
 
-        {/* Toggle button for mobile view */}
         <button
           className="navbar-toggler"
           type="button"
@@ -35,7 +34,14 @@ function UserHeader() {
               </span>
               <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
                 <li>
-                  <Link className="dropdown-item" to="/logout">Logout</Link>
+                  <Link className="dropdown-item" to="/users">
+                    Manage Users
+                  </Link>
+                </li>
+                <li>
+                  <Link className="dropdown-item" to="/logout">
+                    Logout
+                  </Link>
                 </li>
               </ul>
             </li>

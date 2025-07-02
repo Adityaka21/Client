@@ -238,9 +238,8 @@ function LinkDashboard() {
                 name="compaignTitle"
                 value={formdata.compaignTitle}
                 onChange={handleChange}
-                className={`form-control ${
-                  error.compaignTitle ? 'is-invalid' : ''
-                }`}
+                className={`form-control ${error.compaignTitle ? 'is-invalid' : ''
+                  }`}
               />
               {error.compaignTitle && (
                 <div className="invalid-feedback">{error.compaignTitle}</div>
@@ -256,9 +255,8 @@ function LinkDashboard() {
                 name="orginalUrl"
                 value={formdata.orginalUrl}
                 onChange={handleChange}
-                className={`form-control ${
-                  error.orginalUrl ? 'is-invalid' : ''
-                }`}
+                className={`form-control ${error.orginalUrl ? 'is-invalid' : ''
+                  }`}
               />
               {error.orginalUrl && (
                 <div className="invalid-feedback">{error.orginalUrl}</div>
@@ -274,9 +272,8 @@ function LinkDashboard() {
                 name="category"
                 value={formdata.category}
                 onChange={handleChange}
-                className={`form-control ${
-                  error.category ? 'is-invalid' : ''
-                }`}
+                className={`form-control ${error.category ? 'is-invalid' : ''
+                  }`}
               />
               {error.category && (
                 <div className="invalid-feedback">{error.category}</div>

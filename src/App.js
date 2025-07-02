@@ -1,7 +1,7 @@
 
 import { Navigate, Route } from 'react-router-dom';
 import './App.css';
-import { BrowserRouter, Routes} from 'react-router-dom';
+import { BrowserRouter, Routes } from 'react-router-dom';
 import Login from './Login.js';
 import Home from './Home.js';
 import AppLayout from './layout/AppLayout.js';
@@ -13,19 +13,20 @@ import Error from './pages/Error.js';
 import Logout from './pages/Logout.js';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import {SET_USER} from './redux/user/actions';
+import { SET_USER } from './redux/user/actions';
 import Register from './pages/Register.js';
- import Spinner from "./components/Spinner";
+import Spinner from "./components/Spinner";
+import ManageUsers from "./pages/users/ManageUsers.js";
 
 function App() {
   // const [userDetails,setUserDetails] = useState(null);
 
   const userDetails = useSelector((state) => state.userDetails);
   const dispatch = useDispatch();
-  const[loading,setLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
 
-  const isUserLoggedIn = async() => {
-    try{
+  const isUserLoggedIn = async () => {
+    try {
       const response = await axios.post('http://localhost:5000/auth/is-user-logged-in', {}, {
         withCredentials: true
       });
@@ -35,33 +36,34 @@ function App() {
         payload: response.data.userDetails
       });
 
-    }catch (error) {
+    } catch (error) {
       console.log('User is not logged in', error);
-    }finally {
+    } finally {
       setLoading(false)
     }
   };
   useEffect(() => {
     isUserLoggedIn();
-  }, []); 
+  }, []);
 
-    if(loading){
-      return <Spinner />;
-    }
+  if (loading) {
+    return <Spinner />;
+  }
   return (
     <Routes>
-   <Route path='/' element={userDetails? <Navigate to = '/dashboard'/> : <AppLayout><Home /></AppLayout>} />
-   {/* we're passing the updateUserDetails function to the Login component so that it can update the user details in the App component */}
-  {/* we'll get user information from the Login component and update it in the App component */}
-   <Route path='/login' element={userDetails?
-    <Navigate to = '/dashboard'/> :
-    <AppLayout><Login/></AppLayout>} />
-   <Route path='/dashboard' element={userDetails?<UserLayout><Dashboard /></UserLayout>: <Navigate to = '/login' />}/>
-    <Route path='/logout' element={userDetails? <Logout /> : <Navigate to = '/login' />}/>
-    <Route path='/register' element={userDetails? <Navigate to = '/dashboard' /> :
-    <AppLayout><Register /></AppLayout>} />
-   <Route path='/error' element={userDetails? <Error /> : 
-   <AppLayout><Error /></AppLayout>} />
+      <Route path='/' element={userDetails ? <Navigate to='/dashboard' /> : <AppLayout><Home /></AppLayout>} />
+      {/* we're passing the updateUserDetails function to the Login component so that it can update the user details in the App component */}
+      {/* we'll get user information from the Login component and update it in the App component */}
+      <Route path='/login' element={userDetails ?
+        <Navigate to='/dashboard' /> :
+        <AppLayout><Login /></AppLayout>} />
+      <Route path='/dashboard' element={userDetails ? <UserLayout><Dashboard /></UserLayout> : <Navigate to='/login' />} />
+      <Route path="/users" element={userDetails ? (<UserLayout> <ManageUsers /> </UserLayout> ) : ( <Navigate to="/login" />)}/>
+      <Route path='/logout' element={userDetails ? <Logout /> : <Navigate to='/login' />} />
+      <Route path='/register' element={userDetails ? <Navigate to='/dashboard' /> :
+        <AppLayout><Register /></AppLayout>} />
+      <Route path='/error' element={userDetails ? <Error /> :
+        <AppLayout><Error /></AppLayout>} />
     </Routes>
   );
 }
