@@ -3,7 +3,7 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useEffect, useState } from 'react';
-import { serverEndpoint } from '../../config';
+import { serverEndpoint } from '../../config/config';
 import axios from 'axios';
 import { Modal } from 'react-bootstrap';
 import Spinner from '../../components/Spinner'; // Update path as per your folder structure

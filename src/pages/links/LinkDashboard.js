@@ -3,28 +3,29 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useEffect, useState } from 'react';
-import { serverEndpoint } from '../../config';
+import { serverEndpoint } from '../../config/config';
 import axios from 'axios';
 import { Modal } from 'react-bootstrap';
+import { usePermission } from '../../rbac/permission';
 
 function LinkDashboard() {
   const [error, setError] = useState({});
+  const permission = usePermission();
   const [linksData, setLinksData] = useState([]);
   const [formdata, setformdata] = useState({
     compaignTitle: '',
     orginalUrl: '',
     category: ''
   });
-  const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setformdata((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setformdata((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleModalShow = (editMode, data = {}) => {
@@ -36,11 +37,7 @@ function LinkDashboard() {
         category: data.category
       });
     } else {
-      setformdata({
-        compaignTitle: '',
-        orginalUrl: '',
-        category: ''
-      });
+      setformdata({ compaignTitle: '', orginalUrl: '', category: '' });
     }
     setIsEdit(editMode);
     setShowModal(true);
@@ -49,30 +46,26 @@ function LinkDashboard() {
   const handleModalClose = () => {
     setShowModal(false);
     setError({});
+    setFormLoading(false);
   };
 
   const handleDeleteModalshow = (linkId) => {
-    setformdata((prev) => ({
-      ...prev,
-      id: linkId
-    }));
+    setformdata((prev) => ({ ...prev, id: linkId }));
     setShowDeleteModal(true);
   };
 
   const handleDeleteModalClose = () => {
     setShowDeleteModal(false);
+    setDeleteLoading(false);
   };
 
   const handleDeleteSubmit = async () => {
+    setDeleteLoading(true);
     try {
       await axios.delete(`${serverEndpoint}/links/${formdata.id}`, {
         withCredentials: true
       });
-      setformdata({
-        compaignTitle: '',
-        orginalUrl: '',
-        category: ''
-      });
+      setformdata({ compaignTitle: '', orginalUrl: '', category: '' });
       fetchLinks();
     } catch (error) {
       setError({ message: 'Something went wrong, please try again' });
@@ -103,6 +96,7 @@ function LinkDashboard() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (validate()) {
+      setFormLoading(true);
       const body = {
         compaignTitle: formdata.compaignTitle,
         orginalUrl: formdata.orginalUrl,
@@ -119,15 +113,12 @@ function LinkDashboard() {
             withCredentials: true
           });
         }
-        setformdata({
-          compaignTitle: '',
-          orginalUrl: '',
-          category: ''
-        });
+        setformdata({ compaignTitle: '', orginalUrl: '', category: '' });
         await fetchLinks();
       } catch (error) {
         setError({ message: 'Something went wrong, please try again later.' });
       } finally {
+        setFormLoading(false);
         handleModalClose();
       }
     }
@@ -175,12 +166,16 @@ function LinkDashboard() {
       flex: 1,
       renderCell: (params) => (
         <>
-          <IconButton onClick={() => handleModalShow(true, params.row)}>
-            <EditIcon />
+          {permission.canEditLink && (
+            <IconButton>
+            <EditIcon onClick={() => handleModalShow(true, params.row)}/>
           </IconButton>
-          <IconButton onClick={() => handleDeleteModalshow(params.row._id)}>
-            <DeleteIcon />
+          )}
+           {permission.canDeleteLink && (
+          <IconButton >
+            <DeleteIcon onClick={() => handleDeleteModalshow(params.row._id)}/>
           </IconButton>
+           )}
         </>
       )
     }
@@ -190,19 +185,14 @@ function LinkDashboard() {
     <div className="container py-4">
       <div className="d-flex justify-content-between mb-3">
         <h2>Manage Affiliate Links</h2>
-        <button
-          className="btn btn-primary btn-sm"
-          onClick={() => handleModalShow(false)}
-        >
+         {permission.canCreateLink && (
+        <button className="btn btn-primary btn-sm" onClick={() => handleModalShow(false)}>
           Add
         </button>
+         )}
       </div>
 
-      {error.message && (
-        <div className="alert alert-danger" role="alert">
-          {error.message}
-        </div>
-      )}
+      {error.message && <div className="alert alert-danger">{error.message}</div>}
 
       <div style={{ height: 500, width: '100%' }}>
         <DataGrid
@@ -210,15 +200,10 @@ function LinkDashboard() {
           rows={linksData}
           columns={columns}
           initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 20 }
-            }
+            pagination: { paginationModel: { page: 0, pageSize: 20 } }
           }}
           pageSizeOptions={[20, 50, 100]}
           disableRowSelectionOnClick
-          sx={{
-            fontFamily: 'Inherit'
-          }}
         />
       </div>
 
@@ -229,62 +214,31 @@ function LinkDashboard() {
         </Modal.Header>
         <Modal.Body>
           <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="compaignTitle" className="form-label">
-                Compaign Title
-              </label>
-              <input
-                type="text"
-                name="compaignTitle"
-                value={formdata.compaignTitle}
-                onChange={handleChange}
-                className={`form-control ${error.compaignTitle ? 'is-invalid' : ''
-                  }`}
-              />
-              {error.compaignTitle && (
-                <div className="invalid-feedback">{error.compaignTitle}</div>
-              )}
-            </div>
+            {['compaignTitle', 'orginalUrl', 'category'].map((field) => (
+              <div className="mb-3" key={field}>
+                <label className="form-label text-capitalize">{field.replace('orginalUrl', 'URL')}</label>
+                <input
+                  type="text"
+                  name={field}
+                  value={formdata[field]}
+                  onChange={handleChange}
+                  className={`form-control ${error[field] ? 'is-invalid' : ''}`}
+                  disabled={formLoading}
+                />
+                {error[field] && <div className="invalid-feedback">{error[field]}</div>}
+              </div>
+            ))}
 
-            <div className="mb-3">
-              <label htmlFor="orginalUrl" className="form-label">
-                URL
-              </label>
-              <input
-                type="text"
-                name="orginalUrl"
-                value={formdata.orginalUrl}
-                onChange={handleChange}
-                className={`form-control ${error.orginalUrl ? 'is-invalid' : ''
-                  }`}
-              />
-              {error.orginalUrl && (
-                <div className="invalid-feedback">{error.orginalUrl}</div>
+            <button className="btn btn-primary w-100" type="submit" disabled={formLoading}>
+              {formLoading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" />
+                  {isEdit ? 'Saving...' : 'Creating...'}
+                </>
+              ) : (
+                'Submit'
               )}
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="category" className="form-label">
-                Category
-              </label>
-              <input
-                type="text"
-                name="category"
-                value={formdata.category}
-                onChange={handleChange}
-                className={`form-control ${error.category ? 'is-invalid' : ''
-                  }`}
-              />
-              {error.category && (
-                <div className="invalid-feedback">{error.category}</div>
-              )}
-            </div>
-
-            <div className="d-grid">
-              <button type="submit" className="btn btn-primary">
-                Submit
-              </button>
-            </div>
+            </button>
           </form>
         </Modal.Body>
       </Modal>
@@ -296,14 +250,18 @@ function LinkDashboard() {
         </Modal.Header>
         <Modal.Body>Are you sure you want to delete this link?</Modal.Body>
         <Modal.Footer>
-          <button
-            className="btn btn-secondary"
-            onClick={handleDeleteModalClose}
-          >
+          <button className="btn btn-secondary" onClick={handleDeleteModalClose} disabled={deleteLoading}>
             Cancel
           </button>
-          <button className="btn btn-danger" onClick={handleDeleteSubmit}>
-            Delete
+          <button className="btn btn-danger" onClick={handleDeleteSubmit} disabled={deleteLoading}>
+            {deleteLoading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" />
+                Deleting...
+              </>
+            ) : (
+              'Delete'
+            )}
           </button>
         </Modal.Footer>
       </Modal>

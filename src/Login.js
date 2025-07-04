@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { GoogleOAuthProvider , GoogleLogin } from '@react-oauth/google';
-import { serverEndpoint } from './config';
+import { serverEndpoint } from '../src/config/config';
 import { useDispatch } from 'react-redux';
 
 function Login({ updateUserDetails}) {

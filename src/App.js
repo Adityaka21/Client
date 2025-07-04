@@ -17,6 +17,9 @@ import { SET_USER } from './redux/user/actions';
 import Register from './pages/Register.js';
 import Spinner from "./components/Spinner";
 import ManageUsers from "./pages/users/ManageUsers.js";
+import ProctectedRoute from './rbac/ProctectedRoute.js';
+import UnauthorizedAccess from './components/UnauthorizedAccess.js';
+import ManagePayments from './payments/Payments.js';
 
 function App() {
   // const [userDetails,setUserDetails] = useState(null);
@@ -58,7 +61,18 @@ function App() {
         <Navigate to='/dashboard' /> :
         <AppLayout><Login /></AppLayout>} />
       <Route path='/dashboard' element={userDetails ? <UserLayout><Dashboard /></UserLayout> : <Navigate to='/login' />} />
-      <Route path="/users" element={userDetails ? (<UserLayout> <ManageUsers /> </UserLayout> ) : ( <Navigate to="/login" />)}/>
+      <Route path='/manage-payment' element={userDetails ? <UserLayout><ManagePayments /></UserLayout> : <Navigate to='/login' />} />
+      <Route path="/users" element={userDetails ? 
+      <ProctectedRoute roles = {['admin']}>
+         (<UserLayout> 
+          <ManageUsers />
+           </UserLayout> )
+      </ProctectedRoute> : ( <Navigate to="/login" />)}/>
+      <Route path = "/unauthorized-access" element = {userDetails ? 
+        <UserLayout>
+          <UnauthorizedAccess />
+        </UserLayout>: <Navigate to = '/login' />
+      } ></Route>
       <Route path='/logout' element={userDetails ? <Logout /> : <Navigate to='/login' />} />
       <Route path='/register' element={userDetails ? <Navigate to='/dashboard' /> :
         <AppLayout><Register /></AppLayout>} />

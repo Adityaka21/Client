@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import { serverEndpoint } from '../config';
+import { serverEndpoint } from '../../src/config/config';
 import { useDispatch } from 'react-redux';
 
 function Register({ updateUserDetails }) {

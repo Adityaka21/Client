@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from 'react-router-dom';
+import Can from '../rbac/Can'
 
 function UserHeader() {
   return (
@@ -33,14 +34,21 @@ function UserHeader() {
                 Admin
               </span>
               <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                  <Can permission = 'canViewUser'>
                 <li>
+
                   <Link className="dropdown-item" to="/users">
                     Manage Users
                   </Link>
                 </li>
+                  </Can>
                 <li>
                   <Link className="dropdown-item" to="/logout">
                     Logout
+                  </Link>
+                </li>
+                <li>
+                  <Link className="dropdown-item" to = "/manage-payment" >Payments
                   </Link>
                 </li>
               </ul>
