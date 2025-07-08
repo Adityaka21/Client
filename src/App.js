@@ -62,16 +62,16 @@ function App() {
         <AppLayout><Login /></AppLayout>} />
       <Route path='/dashboard' element={userDetails ? <UserLayout><Dashboard /></UserLayout> : <Navigate to='/login' />} />
       <Route path='/manage-payment' element={userDetails ? <UserLayout><ManagePayments /></UserLayout> : <Navigate to='/login' />} />
-      <Route path="/users" element={userDetails ? 
-      <ProctectedRoute roles = {['admin']}>
-         (<UserLayout> 
-          <ManageUsers />
-           </UserLayout> )
-      </ProctectedRoute> : ( <Navigate to="/login" />)}/>
-      <Route path = "/unauthorized-access" element = {userDetails ? 
+      <Route path="/users" element={userDetails ?
+        <ProctectedRoute roles={['admin']}>
+          (<UserLayout>
+            <ManageUsers />
+          </UserLayout> )
+        </ProctectedRoute> : (<Navigate to="/login" />)} />
+      <Route path="/unauthorized-access" element={userDetails ?
         <UserLayout>
           <UnauthorizedAccess />
-        </UserLayout>: <Navigate to = '/login' />
+        </UserLayout> : <Navigate to='/login' />
       } ></Route>
       <Route path='/logout' element={userDetails ? <Logout /> : <Navigate to='/login' />} />
       <Route path='/register' element={userDetails ? <Navigate to='/dashboard' /> :

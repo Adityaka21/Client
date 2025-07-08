@@ -116,6 +116,10 @@ function LinkDashboard() {
         setformdata({ compaignTitle: '', orginalUrl: '', category: '' });
         await fetchLinks();
       } catch (error) {
+        if(error.response?.data?.code === 'ISUFFICIENT_FUNDS'){
+          setError({message: `You do not have enough credits yo perform this action. 
+            Add funds to your account  using Manage Payment option`});
+        }
         setError({ message: 'Something went wrong, please try again later.' });
       } finally {
         setFormLoading(false);
