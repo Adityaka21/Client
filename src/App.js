@@ -19,7 +19,10 @@ import Spinner from "./components/Spinner";
 import ManageUsers from "./pages/users/ManageUsers.js";
 import ProctectedRoute from './rbac/ProctectedRoute.js';
 import UnauthorizedAccess from './components/UnauthorizedAccess.js';
-import ManagePayments from './payments/Payments.js';
+import ManagePayments from './payments/PaymentsDash.js';
+import AnalyticsDashboard from './pages/links/AnalyticsDashboard.js';
+import { serverEndpoint } from './config/config.js';
+
 
 function App() {
   // const [userDetails,setUserDetails] = useState(null);
@@ -27,6 +30,24 @@ function App() {
   const userDetails = useSelector((state) => state.userDetails);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true)
+
+  
+  const attemptToRefreshToken = async () => {
+  try {
+    const response = await axios.post(
+      `${serverEndpoint}/auth/refresh-token`,
+      {},
+      { withCredentials: true }
+    );
+
+    dispatch({
+      type: SET_USER,
+      payload: response.data.userDetails
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   const isUserLoggedIn = async () => {
     try {
@@ -40,7 +61,13 @@ function App() {
       });
 
     } catch (error) {
-      console.log('User is not logged in', error);
+      if (error.response?.status === 401) {
+  console.log('Token expired, attempting to refresh');
+  await attemptToRefreshToken();
+} else {
+  console.log('User not loggedin', error);
+}
+
     } finally {
       setLoading(false)
     }
@@ -73,6 +100,17 @@ function App() {
           <UnauthorizedAccess />
         </UserLayout> : <Navigate to='/login' />
       } ></Route>
+      <Route
+        path="/analytics/:linkId"
+        element={ userDetails ? (
+             <UserLayout>
+              <AnalyticsDashboard />
+            </UserLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
       <Route path='/logout' element={userDetails ? <Logout /> : <Navigate to='/login' />} />
       <Route path='/register' element={userDetails ? <Navigate to='/dashboard' /> :
         <AppLayout><Register /></AppLayout>} />

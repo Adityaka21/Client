@@ -7,8 +7,11 @@ import { serverEndpoint } from '../../config/config';
 import axios from 'axios';
 import { Modal } from 'react-bootstrap';
 import { usePermission } from '../../rbac/permission';
+import { useNavigate } from 'react-router-dom';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 function LinkDashboard() {
+  const navigate = useNavigate();
   const [error, setError] = useState({});
   const permission = usePermission();
   const [linksData, setLinksData] = useState([]);
@@ -116,8 +119,9 @@ function LinkDashboard() {
         setformdata({ compaignTitle: '', orginalUrl: '', category: '' });
         await fetchLinks();
       } catch (error) {
-        if(error.response?.data?.code === 'ISUFFICIENT_FUNDS'){
-          setError({message: `You do not have enough credits yo perform this action. 
+        if (error.response?.data?.code === 'ISUFFICIENT_FUNDS') {
+          setError({
+            message: `You do not have enough credits yo perform this action. 
             Add funds to your account  using Manage Payment option`});
         }
         setError({ message: 'Something went wrong, please try again later.' });
@@ -172,14 +176,20 @@ function LinkDashboard() {
         <>
           {permission.canEditLink && (
             <IconButton>
-            <EditIcon onClick={() => handleModalShow(true, params.row)}/>
-          </IconButton>
+              <EditIcon onClick={() => handleModalShow(true, params.row)} />
+            </IconButton>
           )}
-           {permission.canDeleteLink && (
-          <IconButton >
-            <DeleteIcon onClick={() => handleDeleteModalshow(params.row._id)}/>
-          </IconButton>
-           )}
+          {permission.canDeleteLink && (
+            <IconButton >
+              <DeleteIcon onClick={() => handleDeleteModalshow(params.row._id)} />
+            </IconButton>
+          )}
+          {permission.canViewLink && (
+            <IconButton onClick={() => navigate(`/analytics/${params.row._id}`)}>
+              <AssessmentIcon />
+            </IconButton>
+          )}
+
         </>
       )
     }
@@ -189,11 +199,11 @@ function LinkDashboard() {
     <div className="container py-4">
       <div className="d-flex justify-content-between mb-3">
         <h2>Manage Affiliate Links</h2>
-         {permission.canCreateLink && (
-        <button className="btn btn-primary btn-sm" onClick={() => handleModalShow(false)}>
-          Add
-        </button>
-         )}
+        {permission.canCreateLink && (
+          <button className="btn btn-primary btn-sm" onClick={() => handleModalShow(false)}>
+            Add
+          </button>
+        )}
       </div>
 
       {error.message && <div className="alert alert-danger">{error.message}</div>}
